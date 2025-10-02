@@ -1,0 +1,214 @@
+local FunctionFramework = {}
+FunctionFramework.Config = { DebugMode = true, RedirectRules = {} }
+FunctionFramework.OriginalFunctions = { HttpGet = game.HttpGet }
+
+function FunctionFramework:AddRedirectRule(originalURL, modifiedURLOrFunction)
+    self.Config.RedirectRules[originalURL] = modifiedURLOrFunction
+    if self.Config.DebugMode then print("✅ Added redirect: " .. originalURL) end
+end
+
+function FunctionFramework:Enable()
+    hookfunction(game.HttpGet, function(self, url, ...)
+        local rule = self.Config.RedirectRules[url]
+        if rule then
+            if type(rule) == "function" then
+                if self.Config.DebugMode then print("🔧 Function redirect: " .. url) end
+                return rule(url, ...)
+            else
+                if self.Config.DebugMode then print("🔄 URL redirect: " .. url .. " → " .. rule) end
+                return self.OriginalFunctions.HttpGet(self, rule, ...)
+            end
+        end
+        return self.OriginalFunctions.HttpGet(self, url, ...)
+    end)
+    print("🚀 URL Redirect Framework Enabled")
+end
+FunctionFramework:AddRedirectRule(
+    "https://api.luarmor.net/files/v4/loaders/2401c37b94195677018fb18f72dec3fe.lua",
+    function(originalURL)
+        local originalScript = FunctionFramework.OriginalFunctions.HttpGet(game, originalURL)
+        local translations = {
+            ["Player Info"] = "玩家信息",
+            ["Select a player to view info"] = "选择玩家查看信息",
+            ["Select Player"] = "选择玩家",
+            ["None"] = "无",
+            ["Biggest Threat"] = "最大威胁",
+            ["Select Power"] = "选择能力",
+            ["Equip Power"] = "装备能力",
+            ["Disable Dash Cooldown"] = "禁用冲刺冷却",
+            ["Disable Double Jump Cooldown"] = "禁用二段跳冷却",
+            ["TP"] = "传送",
+            ["Get All"] = "获取所有",
+            ["Boosts"] = "增强功能",
+            ["Damage Boost (NOT FE)"] = "伤害增强",
+            ["Enter value"] = "输入数值",
+            ["Faster Sprint (5 TO UNLOCK DASH)"] = "更快冲刺(5级解锁冲刺)",
+            ["Won Boost (NOT FE)"] = "胜利增强(非前端)",
+            ["Always Can Revive"] = "总是可以复活",
+            ["Disable Injury"] = "禁用受伤",
+            ["Disable Stun"] = "禁用击晕",
+            ["Disable Ragdoll"] = "禁用布娃娃效果",
+            ["Gamepasses (NOT FE)"] = "游戏通行证(可见)",
+            ["Enable VIP"] = "启用VIP",
+            ["Glass Manufacturer Vision"] = "玻璃制造商视野",
+            ["2x Vote Count"] = "2倍投票数",
+            ["Custom Player Tag"] = "自定义玩家标签",
+            ["Emote Pages"] = "表情页面",
+            ["Custom Player Tag (NOT FE)"] = "自定义玩家标签",
+            ["Set a custom tag"] = "设置自定义标签",
+            ["Enter custom number"] = "输入自定义数字",
+            ["Security"] = "安全功能",
+            ["Anti AFK"] = "防挂机",
+            ["Staff Detector"] = "管理员检测",
+            ["Extras"] = "额外功能",
+            ["Select Vote"] = "选择投票",
+            ["Keep Playing"] = "继续游戏",
+            ["Auto Vote"] = "自动投票",
+            ["Auto Skip Dialogue"] = "自动跳过对话",
+            ["Auto Next Game"] = "自动下一局",
+            ["Disable Effects"] = "禁用效果",
+            ["Fullbright"] = "游戏高亮",
+            ["Pickup Bandages"] = "拾取绷带",
+            ["Instant Interact"] = "即时交互",
+            ["Play/Pause Emote"] = "播放/暂停表情",
+            ["Lobby"] = "大厅",
+            ["Auto New Round"] = "自动新回合",
+            ["Auto Return Lobby"] = "自动返回大厅",
+            ["Player (NOT FE)"] = "玩家",
+            ["Noclip"] = "穿墙模式",
+            ["Hide Nametag"] = "隐藏名称标签",
+            ["Select Title"] = "选择称号",
+            ["Equip Title"] = "装备称号",
+            ["Interact Reach"] = "交互范围",
+            ["Toggle"] = "开关",
+            ["Lock"] = "锁定",   
+            ["Search"] = "搜索",
+            ["Games"] = "游戏",
+            ["Red Light, Green Light"] = "红灯绿灯",
+            ["God mode"] = "无敌",
+            ["Finish Red Light, Green Light"] = "完成红灯绿灯",
+            ["Select injured Player"] = "选择受伤玩家",
+            ["Random"] = "随机",
+            ["Search..."] = "搜索...",
+            ["Help the Injured"] = "帮助受伤者",
+            ["Troll the Injured"] = "恶搞受伤者",
+            ["Dalgona"] = "糖饼游戏",
+            ["Get Lighter"] = "获取打火机",
+            ["Auto Dalgona"] = "自动糖饼",
+            ["Auto Dalgona (without hookfunction)"] = "自动糖饼",
+            ["Auto Dalgona (all execs)"] = "自动糖饼(所有注入器)",
+            ["Tug of War"] = "拔河游戏",
+            ["Rope Pull Mode"] = "拉绳模式",
+            ["Rage"] = "狂暴",
+            ["Perfect"] = "完美",
+            ["Normal"] = "普通",
+            ["Troll"] = "恶搞",
+            ["Auto Pull Rope"] = "自动拉绳",
+            ["Glass Bridge"] = "玻璃桥",
+            ["Reveal Safe & Fake Glass"] = "显示安全&假玻璃",
+            ["Finish Glass Bridge"] = "完成玻璃桥",
+            ["Mingle"] = "混战",
+            ["QTE Mode"] = "QTE模式",
+            ["Legit"] = "合法模式",
+            ["Auto Choke"] = "自动窒息",
+            ["Jump Rope"] = "跳绳",
+            ["Finish Jump Rope"] = "完成跳绳",
+            ["Disable Rope (Anti Death)"] = "禁用绳子(防死亡)",
+            ["Auto Balance"] = "自动平衡",
+            ["Use this one only if you died after the cutscene:"] = "仅在过场动画后死亡时使用:",
+            ["Anti die after cutscene"] = "过场动画后防死亡",
+            ["Sky Squid Game"] = "天空鱿鱼游戏",
+            ["Auto QTEs"] = "自动QTE",
+            ["Infinite Stamina"] = "无限体力",
+            ["Auto Climb"] = "自动攀爬",
+            ["Instant Climb"] = "瞬间攀爬",
+            ["Anti Fall"] = "防坠落",
+            ["Lights Out"] = "熄灯",
+            ["Safe Zone"] = "安全区",
+            ["Hide N' Seek"] = "捉迷藏",
+            ["Show Exit Doors (Yellow)"] = "显示出口门(黄色)",
+            ["Show Doors (Cir/Tri/Sqr)"] = "显示门(圆/三角/方)",
+            ["Show Players (Red/Blue)"] = "显示玩家(红/蓝)",
+            ["Exclude Own Team"] = "排除己队",
+            ["Exclude Opposing Team"] = "排除敌队",
+            ["ESP Elements"] = "绘制",
+            ["Box"] = "方框",
+            ["Name"] = "名称",
+            ["Distance"] = "距离",
+            ["Tracer"] = "追踪线",
+            ["Box Type"] = "方框类型",
+            ["2D"] = "2D",
+            ["Corner Box Esp"] = "角落方框绘制",
+            ["Show Dropped Keys (Purple)"] = "显示掉落钥匙(紫色)",
+            ["Show Staircases (Black)"] = "显示楼梯(黑色)",
+            ["Pickup Keys"] = "拾取钥匙",
+            ["Auto Dodge"] = "自动躲避",
+            ["Auto Knife"] = "自动刀",
+            ["Fast Sprint"] = "快速冲刺",
+            ["Attach Hider"] = "附加隐藏者",
+            ["Movement Type"] = "移动类型",
+            ["Teleport"] = "传送",
+            ["Tween"] = "缓动",
+            ["Offset X"] = "偏移X",
+            ["Offset Z"] = "偏移Z",
+            ["Disable Spikes"] = "禁用尖刺",
+            ["Teleport to Hider"] = "传送到隐藏者",
+            ["Rebel"] = "反叛",
+            ["Bring Guards"] = "带来警卫",
+            ["Modded Gun"] = "改装枪",
+            ["Guards Hitbox + ESP"] = "守卫范围+或者",
+            ["Guards Hitbox Size"] = "守卫范围大小",
+            ["Last dinner"] = "最后晚餐",
+            ["Safe Zone (Last Dinner)"] = "安全区(最后晚餐)",
+            ["Squid Game"] = "鱿鱼游戏",
+            ["Float Above Fight Arena"] = "漂浮在竞技场上空",
+            ["Auto-Win"] = "自动胜利",
+            ["AutoWin"] = "自动获胜",
+            ["Combat"] = "战斗",
+            ["Press 'V' to lock onto the closest enemy Press ' to change Keybind (PC only)"] = "按'V'锁定最近敌人 按'更改键位(仅PC)",
+            ["Aimlock Mode"] = "瞄准锁定模式",
+            ["Closest"] = "最近",
+            ["LookingAt"] = "视线内",
+            ["Enable Aimlock"] = "启用瞄准锁定",
+            ["Teleport to Random Player"] = "传送到随机玩家",
+            ["Show Players"] = "显示玩家",
+            ["Kill aura"] = "杀戮光环",
+            ["Auto Equip Weapons"] = "自动装备武器",
+            ["Fork"] = "叉子",
+            ["Bottle"] = "瓶子",
+            ["Knife"] = "刀",
+            ["Fists"] = "拳头",
+            ["FIGHT BACK"] = "反击",
+            ["Push"] = "推",
+            ["Power Hold"] = "力量保持",
+            ["Throw Pole"] = "投掷杆",
+            ["Kill aura Range"] = "杀戮光环范围",
+            ["Auto Equip Tool"] = "自动装备工具",
+            ["Auto Attack"] = "自动攻击",
+            ["Face Target"] = "面向目标",
+            ["Attach Target"] = "附加目标",
+            ["Select Target Player"] = "选择目标玩家",
+            ["Follow Movement Type"] = "跟随移动类型",
+            ["Miscs"] = "杂项",
+            ["Emotes"] = "表情",
+            ["Select Emote"] = "选择表情",
+            ["Players"] = "玩家",
+            ["Settings"] = "设置"
+        }
+        
+        
+        local chineseScript = originalScript
+        for english, chinese in pairs(translations) do
+            
+            chineseScript = chineseScript:gsub('"' .. english .. '"', '"' .. chinese .. '"')
+            chineseScript = chineseScript:gsub("'" .. english .. "'", "'" .. chinese .. "'")
+            chineseScript = chineseScript:gsub("Name = " .. english, "Name = " .. chinese)
+            chineseScript = chineseScript:gsub("Title = " .. english, "Title = " .. chinese)
+            chineseScript = chineseScript:gsub("Content = " .. english, "Content = " .. chinese)
+        end
+        
+        return chineseScript
+    end
+)
+
+FunctionFramework:Enable()
